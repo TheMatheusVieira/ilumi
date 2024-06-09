@@ -1,0 +1,155 @@
+// import { FlatList, Button, View, Text, StyleSheet, TextInput, SafeAreaView, TouchableHighlight, Modal } from 'react-native';
+// import React, { useState } from 'react';
+
+// export default function ListaDeEventos({ navigation }) {
+//   const [text, onChangeText] = React.useState('');
+
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [showModal, setShowModal] = useState(false); // Modal for adding events
+//   const [eventModalVisible, setEventModalVisible] = useState(false); // Modal for viewing event details
+//   const [selectedEvent, setSelectedEvent] = React.useRef(null); // To store the selected event
+//   const [newKey, setNewKey] = useState(''); // To store the new key entered in the modal
+
+//   const data = [
+//     { key: 'Evento 1' },
+//     { key: 'Evento 2' },
+//     { key: 'Evento 3' },
+//     { key: 'Evento 4' },
+//     { key: 'Evento 5' },
+//     { key: 'Evento 6' },
+//     { key: 'Evento 7' },
+//     { key: 'Evento 8' },
+//     { key: 'Evento 9' },
+//     { key: 'Evento 10' },
+//     { key: 'Evento 11' },
+//     { key: 'Evento 12' },
+//     { key: 'Evento 13' },
+//     { key: 'Evento 14' },
+//     { key: 'Evento 15' },
+//   ];
+
+//   const filteredData = data.filter((event) =>
+//     event.key.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   const renderItem = ({ item }) => (
+//     <TouchableHighlight
+//       underlayColor="transparent"
+//       onPress={() => {
+//         setSelectedEvent(item);
+//         setEventModalVisible(true);
+//       }}
+//       activeOpacity={0.9}
+//     >
+//       <Text style={styles.item}>{item.key}</Text>
+//     </TouchableHighlight>
+//   );
+
+//   const handleModalClose = () => {
+//     setShowModal(false);
+//     setNewKey('');
+//   };
+
+//   const handleAddKey = () => {
+//     if (newKey.trim()) {
+//       // Add the new key to the data array
+//       const newData = [...data, { key: newKey }];
+//       // Assuming you have a function named 'setData' to update the data
+//       setData(newData); // Update your data state here (if applicable)
+//       // Clear the new key input
+//       setNewKey('');
+//       // Close the modal
+//       setShowModal(false);
+//     } else {
+//       alert('Por favor, digite um nome para o evento.');
+//     }
+//   };
+
+//   const handleEventModalClose = () => {
+//     setEventModalVisible(false);
+//     setSelectedEvent(null); // Reset selected event
+//   };
+
+//   const handleNavigateToEvent = () => {
+//     if (selectedEvent) {
+//       navigation.navigate('Evento', { selectedEvent: selectedEvent.current });
+//       setEventModalVisible(false); // Close the modal after navigation
+//     }
+//   };
+
+//   const onPress = (event) => {
+//     console.log('Evento pressionado:', event.key);
+//   };
+
+//   return (
+//     <View style={styles.list}>
+//       <View>
+//         <Text style={styles.tilista}>Lista de Eventos</Text>
+//       </View>
+
+//       <View style={styles.addevento}>
+//         <Button color="black" title="+" type="outline" style={styles.addevento} onPress={() => setShowModal(true)} />
+//       </View>
+
+//       <SafeAreaView>
+//         <TextInput
+//           style={styles.input}
+//           onChangeText={(text) => setSearchTerm(text)}
+//           value={searchTerm}
+//           placeholder="Pesquisar evento"
+//         />
+//         <FlatList
+//           data={filteredData}
+//           renderItem={renderItem}
+//           keyExtractor={(item) => item.key}
+//         />
+//       </SafeAreaView>
+
+//       {/* Modal for adding new events */}
+//       <Modal
+//         visible={showModal}
+//         onRequestClose={handleModalClose}
+//         animationType="slide" // Optional for animation
+//         transparent={true} // Optional for transparency
+//       >
+//         <View style={styles.modal}>
+//           <Text style={styles.modalText}>Adicionar Novo Evento</Text>
+
+//           <TextInput
+//           style={styles.modalInput}
+//           value={newKey}
+//           onChangeText={(text) => setNewKey(text)}
+//           placeholder="Nome do Evento"
+//         />
+
+//         <View style={styles.modalButtons}>
+//           <Button color={'black'} title="CONFIRMAR" onPress={handleAddKey} />
+//           <Button color={'black'} title="CANCELAR" onPress={handleModalClose} />
+//         </View>
+//       </View>
+//     </Modal>
+
+//     {/* Modal for viewing event details */}
+//     <Modal
+//       visible={eventModalVisible}
+//       onRequestClose={handleEventModalClose}
+//       animationType="slide" // Optional for animation
+//       transparent={true} // Optional for transparency
+//     >
+//       <View style={styles.modal}>
+//         <Text style={styles.modalText}>Detalhes do Evento</Text>
+
+//         <Text style={styles.modalEventText}>Evento: {selectedEvent?.key}</Text>
+
+//         <View style={styles.modalButtons}>
+//           <Button color={'black'} title="ABRIR" onPress={handleNavigateToEvent} />
+//           <Button color={'black'} title="ALTERAR" onPress={() => {}} /> // Implement your event editing functionality
+//           <Button color={'black'} title="EXCLUIR" onPress={() => {}} /> // Implement your event deletion functionality
+//           <Button color={'black'} title="FECHAR" onPress={handleEventModalClose} />
+//         </View>
+//       </View>
+//     </Modal>
+
+//     </View>
+//   );
+//     }
