@@ -128,10 +128,10 @@ const handleDeleteEvent = (eventToDelete) => {
   
   return (
     <View style={styles.list}>
-           <View>
+           {/* <View>
              <Text style={styles.tilista}>Lista de Eventos</Text>
            </View>
-    
+     */}
            <View style={styles.addevento}>
              <Button color="black" title="+" type="outline" style={styles.addevento} onPress={handleAddKey}/>
            </View>
@@ -160,7 +160,7 @@ const handleDeleteEvent = (eventToDelete) => {
   transparent={true} // Optional for transparency
 >
   <View style={styles.modal}>
-    <Text style={styles.modalText}>Adicionar Novo Evento</Text>
+    <Text style={styles.modalText}>ADICIONAR NOVO EVENTO</Text>
     <TextInput
       style={styles.modalInput}
       value={newKey}
@@ -189,7 +189,7 @@ const handleDeleteEvent = (eventToDelete) => {
                 <Button color={'black'} title='ALTERAR - Nome do evento'/>
                 <Button color={'black'} title='IMPORTAR - Planilha Excel.XLS'/>
                 <Button color={'black'} title='EXPORTAR - Planilha Excel.CSV'/>
-                <Button color={'black'} title='EXCLUIR EVENTO'/> 
+                <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleDeleteEvent}/> 
                 <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
               </View>
               </View>
@@ -257,13 +257,22 @@ const styles = StyleSheet.create({
       borderLeftColor: 'transparent',
     },
     addevento:{
+      // backgroundColor: 'black',
+      // position: 'absolute',
+      // alignItems: 'center',
+      // width: 40,
+      // height: 40,
+      // marginLeft: 315,
+      // marginTop: 88,
+      // marginRight: 10,
+
       backgroundColor: 'black',
       position: 'absolute',
       alignItems: 'center',
       width: 40,
       height: 40,
       marginLeft: 315,
-      marginTop: 88,
+      marginTop: 35,
       marginRight: 10,
     },
     modal: {
@@ -274,10 +283,12 @@ const styles = StyleSheet.create({
           
         },
         modalText: {
-          fontSize: 18,
-          color: 'black',
-          marginBottom: 15,
-          fontWeight: 'bold'
+          fontSize: 19,
+          color: 'white',
+          textShadowRadius: 9,
+        textShadowColor: 'black',
+          marginBottom: 11,
+          fontWeight: "bold",
         },
         modalButtons: {
           flexDirection: 'column',
@@ -286,7 +297,7 @@ const styles = StyleSheet.create({
           width: '75%',
         },
         quadro: {
-          backgroundColor: 'white',
+          // backgroundColor: 'white',
           paddingBottom: 20,
           paddingTop: 10,
           paddingLeft: 30,
