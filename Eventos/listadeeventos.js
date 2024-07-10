@@ -1,205 +1,158 @@
-import { FlatList, Button, View, Text, StyleSheet, TextInput, SafeAreaView, TouchableHighlight, Modal, ScrollView} from 'react-native';
+import { FlatList, Button, View, Text, StyleSheet, TextInput, SafeAreaView, TouchableHighlight, Modal } from 'react-native';
 import React, { useState, useEffect } from 'react';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function ListaDeEventos ({navigation}) {
+export default function ListaDeEventos({ navigation }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newKey, setNewKey] = useState('');
+  const [data, setData] = useState([]);
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const selectedEvent = React.useRef(null);
 
-  //Variável para pesquisa
-    const [searchTerm, setSearchTerm] = useState('');
-
-    //Variável linha de cada evento
-  const [newKey, setNewKey] = useState(''); 
- 
-  //Salvar evento novo na lista
-// Load data from AsyncStorage on component mount
-useEffect(() => {
-  const loadData = async () => {
-    try {
-      const storedData = await AsyncStorage.getItem('eventData');
-      if (storedData) {
-        setData(JSON.parse(storedData));
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem('eventData');
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          console.log('Dados carregados:', parsedData);
+          setData(parsedData);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar eventos:', error);
       }
-    } catch (error) {
-      console.error('Erro ao carregar eventos:', error);
+    };
+
+    loadData();
+  }, []);
+
+  const filteredData = data.filter((event) =>
+    typeof event.key === 'string' && event.key.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderItem = ({ item }) => (
+    <TouchableHighlight
+      underlayColor="transparent"
+      onPress={() => {
+        selectedEvent.current = item;
+        setShowModal(true);
+      }}
+      activeOpacity={0.9}
+    >
+      <Text style={styles.item}>{item.key}</Text>
+    </TouchableHighlight>
+  );
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setNewKey('');
+  };
+
+  const addEventModalClose = () => {
+    setShowAddEvent(false);
+    setNewKey('');
+  };
+
+  const handleAddKey = () => {
+    if (newKey.trim()) {
+      const newData = [...data, { key: newKey }];
+      setData(newData);
+      AsyncStorage.setItem('eventData', JSON.stringify(newData))
+        .then(() => console.log('Eventos salvos com sucesso!'))
+        .catch((error) => console.error('Erro ao salvar eventos:', error));
+      setNewKey('');
+      setShowAddEvent(false);
+    } else {
+      console.error('Por favor, digite um nome para o evento.');
     }
   };
 
-  loadData();
-}, []);
-
-//LISTA DE EVENTOS
-    const [data, setData] = useState([
-      {key: 'Evento 1'},
-      {key: 'Evento 2'},
-      {key: 'Evento 3'},
-      {key: 'Evento 4'},
-      {key: 'Evento 5'},
-      {key: 'Evento 6'},
-      {key: 'Evento 7'},
-      {key: 'Evento 8'},
-      {key: 'Evento 9'},
-      {key: 'Evento 10'},
-      {key: 'Evento 11'},
-      {key: 'Evento 12'},
-      {key: 'Evento 13'},
-      {key: 'Evento 14'},
-      {key: 'Evento 15'},
-    ]);
-
-    const [showAddEvent, setShowAddEvent] = useState(false);
-    const [eventModalVisible, setEventModalVisible] = useState(false);
-
-    const [showModal, setShowModal] = useState(false);
-    const selectedEvent = React.useRef(null); 
-
-    const filteredData = data.filter((event) =>
-      event.key.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-      
-    // DEFINE VISIBILIDADE DOS ITENS NA TELA
-        const renderItem = ({ item }) => (
-          <TouchableHighlight
-            underlayColor="transparent"
-            onPress={() => { 
-            //  setselectedEvent(item);
-              setShowModal(true);
-              setEventModalVisible(true);
-            }}
-            activeOpacity={0.9}
-          >
-            <Text style={styles.item}>{item.key}</Text>
-          </TouchableHighlight>
-        );
-      
-        const handleModalClose = () => {
-          setShowModal(false);
-          setNewKey('');
-        };
-
-        const addEventModalClose = () => {
-          setShowAddEvent(false);
-          setNewKey('');
-        };
-
-        const handleAddKey = () => {
-          if (newKey.trim()) {
-            // Add the new key to the data array
-            const newData = [...data, { key: newKey }];
-            setData(newData);
-
-            // Save the updated data to AsyncStorage
+  const handleRemoveKey = () => {
+    if (selectedEvent.current) {
+      const newData = data.filter(item => item.key.toLowerCase() !== selectedEvent.current.key.toLowerCase());
+      setData(newData);
       AsyncStorage.setItem('eventData', JSON.stringify(newData))
-      .then(() => console.log('Eventos salvos com sucesso!'))
-      .catch((error) => console.error('Erro ao salvar eventos:', error));
+        .then(() => console.log('Eventos salvos com sucesso!'))
+        .catch((error) => console.error('Erro ao salvar eventos:', error));
+      setShowModal(false);
+    } else {
+      console.error('Chave inválida:', newKey);
+    }
+  };
 
+  const handleNavigateToEvent = () => {
+    navigation.navigate('Evento', { selectedEvent: selectedEvent.current });
+    setShowModal(false);
+  };
 
-            // Clear the new key input
-            setNewKey('');
-            // Close the modal
-            setShowAddEvent(false);
-          } else {
-            setShowAddEvent(true);
-            // alert('Por favor, digite um nome para o evento.');
-          }
-        };
-      
-// Function to delete an event
-const handleDeleteEvent = (eventToDelete) => {
-  const filteredData = data.filter((event) => event !== eventToDelete);
-  setData(filteredData);
-
-  // Save the updated data to AsyncStorage
-  AsyncStorage.setItem('eventData', JSON.stringify(filteredData))
-  .then(() => console.log('Evento excluído com sucesso!'))
-  .catch((error) => console.error('Erro ao excluir evento:', error));
-};
-
-
-        const handleNavigateToEvent = () => {
-          navigation.navigate('Evento', { selectedEvent: selectedEvent.current }); 
-          setShowModal(false);
-        };
-
-    const onPress = (event) => {
-      console.log('Evento pressionado:', event.key);
-  };  
-
-  
   return (
     <View style={styles.list}>
-           {/* <View>
-             <Text style={styles.tilista}>Lista de Eventos</Text>
-           </View>
-     */}
-           <View style={styles.addevento}>
-             <Button color="black" title="+" type="outline" style={styles.addevento} onPress={handleAddKey}/>
-           </View>
-    
-           <SafeAreaView>
-             <TextInput
-              style={styles.input}
-              onChangeText={(text) => setSearchTerm(text)}
-              value={searchTerm}
-              placeholder="Pesquisar evento"
-            />
+      <View style={styles.addevento}>
+        <Button color="black" title="+" type="outline" onPress={() => setShowAddEvent(true)} />
+      </View>
 
-            <FlatList
-              data={filteredData}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.key}
-            />
-            
-          </SafeAreaView>
-    
+      <SafeAreaView>
+        <TextInput
+          style={styles.input}
+          onChangeText={(text) => setSearchTerm(text)}
+          value={searchTerm}
+          placeholder="Pesquisar evento"
+        />
 
-          <Modal           //MODAL DO ADICIONAR NOVO EVENTO
-  visible={showAddEvent}
-  onRequestClose={addEventModalClose}
-  animationType="slide" // Optional for animation
-  transparent={true} // Optional for transparency
->
-  <View style={styles.modal}>
-    <Text style={styles.modalText}>ADICIONAR NOVO EVENTO</Text>
-    <TextInput
-      style={styles.modalInput}
-      value={newKey}
-      onChangeText={(text) => setNewKey(text)}
-      placeholder="Nome do Evento"
-    />
-    <View style={styles.modalButtons}>
-      <Button color={'black'} title="CONFIRMAR" onPress={handleAddKey} />
-      <Button color={'black'} title="CANCELAR" onPress={addEventModalClose} />
-    </View>
-  </View>
-</Modal>
+        <FlatList
+          data={filteredData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.key}
+        />
+      </SafeAreaView>
 
-
-          <Modal                 //MODAL DA LISTA DE OPÇÕES DE CADA EVENTO
-            visible={showModal}
-            onRequestClose={handleModalClose}
-            animationType="slide" // Optional for animation
-            transparent={true} // Optional for transparency
-          >
-            <View style={styles.modal}>
-              <View style={styles.quadro}>
-              <Text style={styles.modalText}>DESEJA ENTRAR NO EVENTO "{selectedEvent.current?.key}"?</Text>
-              <View style={styles.modalButtons}>
-                <Button color={'black'} title="ABRIR - Lista de convidados" onPress={handleNavigateToEvent} />
-                <Button color={'black'} title='ALTERAR - Nome do evento'/>
-                <Button color={'black'} title='IMPORTAR - Planilha Excel.XLS'/>
-                <Button color={'black'} title='EXPORTAR - Planilha Excel.CSV'/>
-                <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleDeleteEvent}/> 
-                <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
-              </View>
-              </View>
-            </View>
-          </Modal>
+      <Modal
+        visible={showAddEvent}
+        onRequestClose={addEventModalClose}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modal}>
+          <Text style={styles.modalText}>ADICIONAR NOVO EVENTO</Text>
+          <TextInput
+            style={styles.modalInput}
+            value={newKey}
+            onChangeText={(text) => setNewKey(text)}
+            placeholder="Nome do Evento"
+          />
+          <View style={styles.modalButtons}>
+            <Button color={'black'} title="CONFIRMAR" onPress={handleAddKey} />
+            <Button color={'black'} title="CANCELAR" onPress={addEventModalClose} />
+          </View>
         </View>
-      );
-    }
+      </Modal>
 
-//ESTILIZAÇÃO DA PÁGINA
+      <Modal
+        visible={showModal}
+        onRequestClose={handleModalClose}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modal}>
+          <View style={styles.quadro}>
+            <Text style={styles.modalText}>DESEJA ENTRAR NO EVENTO "{selectedEvent.current?.key}"?</Text>
+            <View style={styles.modalButtons}>
+              <Button color={'black'} title="ABRIR - Lista de convidados" onPress={handleNavigateToEvent} />
+              <Button color={'black'} title='ALTERAR - Nome do evento' />
+              <Button color={'black'} title='IMPORTAR - Planilha Excel.XLS' />
+              <Button color={'black'} title='EXPORTAR - Planilha Excel.CSV' />
+              <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleRemoveKey} />
+              <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+// //ESTILIZAÇÃO DA PÁGINA
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -257,15 +210,6 @@ const styles = StyleSheet.create({
       borderLeftColor: 'transparent',
     },
     addevento:{
-      // backgroundColor: 'black',
-      // position: 'absolute',
-      // alignItems: 'center',
-      // width: 40,
-      // height: 40,
-      // marginLeft: 315,
-      // marginTop: 88,
-      // marginRight: 10,
-
       backgroundColor: 'black',
       position: 'absolute',
       alignItems: 'center',
@@ -304,6 +248,5 @@ const styles = StyleSheet.create({
           paddingRight: 30,
           justifyContent: 'center',
           alignItems: 'center',
-        }
-  });
-  
+         }
+});

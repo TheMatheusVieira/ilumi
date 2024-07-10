@@ -8,7 +8,7 @@ export default function Home({navigation}) {
     <Text>Ilumi</Text>
 
     <View style={styles.botao}>
-    <Button color='black' title="COMEÇAR" type="outline"
+    <Button color='black' title="COMEÇAR" type="outline" class='estilobotao' 
     onPress={() => navigation.navigate('Listas')}/>
     </View>
 
