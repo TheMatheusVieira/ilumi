@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity, Animated, Image } from 'react
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import MyEventsScreen from '../app-ilumi/Eventos/MyEventsScreen'; 
+
 const Stack = createStackNavigator();
 
 const HomeScreen = ({ navigation }) => {
@@ -16,7 +18,7 @@ const HomeScreen = ({ navigation }) => {
         duration: 1000, // Duração da transição em milissegundos
         useNativeDriver: true,
       }).start(() => setShowWelcome(false));
-    }, 3000); // 3 segundos
+    }, 2000); // 3 segundos
 
     return () => clearTimeout(timer);
   }, []);
@@ -49,7 +51,7 @@ const NextPage = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.buttonMenu}>
+        <TouchableOpacity style={styles.buttonMenu} onPress={() => navigation.navigate('MyEvents')}>
           <Text style={styles.buttonTextMenu}>Meus eventos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonMenu}>
@@ -69,6 +71,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="NextPage" component={NextPage} options={{ headerShown: false }} />
+        <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -99,27 +102,42 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 2,
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 60,
     backgroundColor: 'black',
     borderRadius: 18,
     alignItems: 'center',
+
+    backgroundColor: 'white',
+
+    borderWidth: 1,
+    borderBottomColor: '#b8860b',
+    borderTopColor: '#b8860b',
+    borderRightColor: '#b8860b',
+    borderLeftColor: '#b8860b',
   },
   buttonMenu: {
     marginTop: 2,
     margin: 25,
-    paddingVertical: 8,
-    paddingHorizontal: 60,
+    width: 220,
+    height: 40,
     backgroundColor: 'black',
-    borderRadius: 18,
+    borderRadius: 17,
     alignItems: 'center',
+
+    borderWidth: 1,
+    borderBottomColor: '#b8860b',
+    borderTopColor: '#b8860b',
+    borderRightColor: '#b8860b',
+    borderLeftColor: '#b8860b',
   },
   buttonTextMenu: {
     color: 'white',
     fontSize: 20,
+    marginTop: 5,
   },
   buttonText: {
-    color: 'white',
+    color: '#b8860b',
     fontSize: 18,
   },
   header: {
@@ -150,5 +168,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 70,
   },
 });
