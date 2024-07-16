@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Image, SafeAreaView, Modal, FlatList, Button} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DocumentPicker from 'react-native-document-picker';
+import XLSX from 'xlsx';
+
 
 const MyEventsScreen = ({ navigation }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +33,31 @@ const MyEventsScreen = ({ navigation }) => {
     const filteredData = data.filter((event) =>
       typeof event.key === 'string' && event.key.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const handleImportExcel = async () => {
+      try {
+        const result = await DocumentPicker.pick({
+          type: [DocumentPicker.types.allFiles],
+        });
+        const file = result[0];
+        const data = await file.readAsBinaryString();
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const parsedData = XLSX.utils.sheet_to_json(sheet);
+  
+        // Store parsed data in AsyncStorage
+        await AsyncStorage.setItem('excelData', JSON.stringify(parsedData));
+        console.log('Data imported:', parsedData);
+        alert('Planilha importada com sucesso!');
+      } catch (err) {
+        if (DocumentPicker.isCancel(err)) {
+          console.log('User cancelled the picker');
+        } else {
+          console.log('Error:', err);
+        }
+      }
+    };
   
     const renderItem = ({ item }) => (
       <TouchableHighlight
@@ -154,7 +182,7 @@ const MyEventsScreen = ({ navigation }) => {
               <View style={styles.modalButtons}>
                 <Button color={'black'} title="ABRIR - Lista de convidados" onPress={NavegarParaEvento} />
                 <Button color={'black'} title='ALTERAR - Nome do evento' />
-                <Button color={'black'} title='IMPORTAR - Planilha de Excel' />
+                <Button color={'black'} title='IMPORTAR - Planilha de Excel' onPress={handleImportExcel} />
                 <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleRemoveKey} />
                 <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
               </View>

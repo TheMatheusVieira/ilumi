@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import MyEventsScreen from '../app-ilumi/Eventos/MyEventsScreen'; 
+import EventScreen from '../app-ilumi/Eventos/EventScreen';
 
 const Stack = createStackNavigator();
 
@@ -68,10 +69,11 @@ const NextPage = ({navigation}) => {
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="NextPage" component={NextPage} options={{ headerShown: false }} />
         <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Evento" component={EventScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
