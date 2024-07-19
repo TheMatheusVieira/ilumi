@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity, Animated, Image } from 'react
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import MyEventsScreen from '../app-ilumi/Eventos/MyEventsScreen'; 
-import EventScreen from '../app-ilumi/Eventos/EventScreen';
+import MyEventsScreen from './Eventos/MyEventsScreen'; 
+import EventScreen from './Eventos/EventScreen';
 
 const Stack = createStackNavigator();
 
@@ -59,7 +59,7 @@ const NextPage = ({navigation}) => {
           <Text style={styles.buttonTextMenu}>Novo evento</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonMenu}>
-          <Text style={styles.buttonTextMenu}>Minhas Listas</Text>
+          <Text style={styles.buttonTextMenu}>Minhas listas</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -122,9 +122,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
     margin: 25,
     width: 220,
-    height: 40,
-    backgroundColor: 'black',
-    borderRadius: 17,
+    height: 180,
+    backgroundColor: 'transparent',
+    borderRadius: 4,
     alignItems: 'center',
 
     borderWidth: 1,
@@ -134,9 +134,9 @@ const styles = StyleSheet.create({
     borderLeftColor: '#b8860b',
   },
   buttonTextMenu: {
-    color: 'white',
+    color: '#b8860b',
     fontSize: 20,
-    marginTop: 5,
+    marginTop: 70,
   },
   buttonText: {
     color: '#b8860b',
@@ -170,6 +170,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 70,
+    paddingTop: 24,
   },
 });

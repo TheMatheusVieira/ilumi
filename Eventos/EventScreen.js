@@ -2,9 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
+
 const EventScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState([]);
+
+  const [eventList] = useState([
+    ['CONVITE', 'PAX', 'PP'],
+    ...Array.from({ length: 8 }, () => ['teste', 'teste', 'teste'])
+  ]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -22,39 +29,46 @@ const EventScreen = ({ navigation }) => {
     loadData();
   }, []);
 
-  const filteredData = data.filter(item => 
-    item.NOME.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredData = data.filter(item => 
+  //   item.NOME.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const renderItem = ({ item }) => (
-    <View style={styles.listItem}>
-      <Text style={styles.listText}>{item.NOME}</Text>
-      <Text style={styles.listText}>{item.PAX}</Text>
-      <Text style={styles.listText}>{item.PP}</Text>
-    </View>
-  );
+  // const renderItem = ({ item }) => (
+  //   <View style={styles.listItem}>
+  //     <Text style={styles.listText}>{item.NOME}</Text>
+  //     <Text style={styles.listText}>{item.PAX}</Text>
+  //     <Text style={styles.listText}>{item.PP}</Text>
+  //   </View>
+  // );
 
   return (
     <View style={styles.container}>
+
       <View style={styles.header}>
-        <TouchableOpacity style={styles.menuIconContainer} onPress={() => navigation.goBack()}>
-          <Image source={require('../assets/menu.png')} style={styles.menuIcon} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Evento</Text>
+          <TouchableOpacity style={styles.menuIconContainer} onPress={() => navigation.goBack()}>
+           <Image source={require('../assets/menu.png')} style={styles.menuIcon} />
+          </TouchableOpacity>
       </View>
 
-      <View style={styles.contentContainer}>
+
+      <View>
         <View style={styles.ContainerConvite}>
-          <View style={styles.BoxConvite} />
+          <Text style={{color: 'white',}}>Teste</Text>
         </View>
-        
+      <View/>
+
+
         <View style={styles.buttonsContainer}>
+
           <TouchableOpacity style={styles.counterButton}>
             <Text style={styles.counterButtonText}>Menos 1</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity style={styles.counterButton}>
             <Text style={styles.counterButtonText}>Mais 1</Text>
           </TouchableOpacity>
+
         </View>
 
         <View style={styles.inputContainer}>
@@ -69,11 +83,19 @@ const EventScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
+    <View>
         <FlatList
-          data={filteredData}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.NOME}
+          data={eventList}
+          renderItem={({ item }) => (
+            <View style={styles.row}>
+              {item.map((cell, index) => (
+                <Text key={index} style={styles.cell}>{cell}</Text>
+              ))}
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
         />
+    </View>
 
         <View style={styles.exportButtonContainer}>
           <TouchableOpacity style={styles.exportButton}>
@@ -81,6 +103,7 @@ const EventScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+
     </View>
   );
 };
@@ -99,108 +122,122 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   headerTitle: {
-    color: '#FFA500',
+    color: '#FFA500', // Cor laranja do título Ilumi
     fontSize: 24,
     fontWeight: 'bold',
+    paddingTop: 20,
   },
   menuIconContainer: {
     padding: 5,
+    paddingTop: 35,
   },
   menuIcon: {
     width: 25,
     height: 25,
     tintColor: 'white',
   },
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 20,
-  },
   ContainerConvite: {
-    marginVertical: 20,
+    marginVertical: 25,
+    marginLeft: 30,
+    marginRight: 30,
     padding: 20,
     backgroundColor: 'black',
     borderRadius: 10,
   },
-  BoxConvite: {
-    width: 200,
-    height: 10,
-    backgroundColor: 'black',
-  },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
-    marginVertical: 20,
-    marginBottom: 50,
+    justifyContent: 'center',
+    gap: 20,
+    width: '100%',
+    marginBottom: 20,
   },
   counterButton: {
-    padding: 10,
     backgroundColor: 'black',
-    borderRadius: 30,
-    marginHorizontal: 10,
+    borderRadius: 10,
+    marginHorizontal: 8,
     width: 100,
-    height: 35,
+    height: 30,
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+
+    borderWidth: 1,
+    borderBottomColor: '#b8860b',
+    borderTopColor: '#b8860b',
+    borderRightColor: '#b8860b',
+    borderLeftColor: '#b8860b',
   },
   counterButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 15,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 20,
-    paddingBottom: 20,
+    marginVertical: 5,
+
+    //paddingBottom: 100, // Ajuste o padding para caber a lista
   },
   input: {
     borderBottomWidth: 1,
     borderBottomColor: 'black',
-    padding: 10,
-    width: 200,
+    padding: 8,
+    width: 230,
     marginRight: 10,
+    marginLeft: 10,
   },
   addButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    width: 90,
+    height: 30,
     backgroundColor: 'black',
     borderRadius: 10,
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    borderWidth: 1,
+    borderBottomColor: '#b8860b',
+    borderTopColor: '#b8860b',
+    borderRightColor: '#b8860b',
+    borderLeftColor: '#b8860b',
   },
   addButtonText: {
     color: 'white',
-    fontSize: 18,
-  },
-  listItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  listText: {
-    fontSize: 16,
-    width: '30%',
+    fontSize: 15,
   },
   exportButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
+    position: 'static',
+    marginTop: 15,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
   },
   exportButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 14,
     backgroundColor: 'black',
     borderRadius: 10,
+
+    borderWidth: 1,
+    borderBottomColor: '#b8860b',
+    borderTopColor: '#b8860b',
+    borderRightColor: '#b8860b',
+    borderLeftColor: '#b8860b',
   },
   exportButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 15,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  cell: {
+    flex: 1,
+    textAlign: 'center',
   },
 });
 
