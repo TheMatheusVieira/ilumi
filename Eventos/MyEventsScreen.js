@@ -39,32 +39,33 @@ const MyEventsScreen = ({ navigation }) => {
       const result = await DocumentPicker.getDocumentAsync({
         type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
       });
-
+  
       if (result.type === 'success') {
         const fileContent = await FileSystem.readAsStringAsync(result.uri, { encoding: FileSystem.EncodingType.Base64 });
-
+  
         const workbook = XLSX.read(fileContent, { type: 'base64' });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
         const parsedData = XLSX.utils.sheet_to_json(sheet);
-
-        // Process the first 3 columns only
-        const importedData = parsedData.map((row) => [row['CONVITE'], row['PAX'], row['PP']]);
-
-        // Store the processed data in AsyncStorage
+  
+        const importedData = parsedData.map((row) => [
+          String(row['CONVITE']),
+          String(row['PAX']),
+          String(row['PP'])
+        ]);
+  
         await AsyncStorage.setItem('excelData', JSON.stringify(importedData));
-
-        // Update the state with the imported data
-        setData(importedData);
-
-        // Display success message
+  
+        navigation.navigate('Evento', { importedData });
+  
         alert('Planilha importada com sucesso!');
       }
     } catch (err) {
       console.error('Erro:', err);
-      alert('Erro ao importar planilha!'); // Informar ao usuário sobre o erro
+      alert('Erro ao importar planilha!');
     }
   };
+  
 
   const renderItem = ({ item }) => (
     <TouchableHighlight
@@ -124,9 +125,10 @@ const handleRemoveKey = () => {
 };
 
 const NavegarParaEvento = () => {
-  navigation.navigate('Evento', { selectedEvent: selectedEvent.current });
+  navigation.navigate('Evento', { importedData: data });
   setShowModal(false);
 };
+
 
 return (
   <View style={styles.container}>
