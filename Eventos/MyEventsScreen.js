@@ -35,21 +35,30 @@ const MyEventsScreen = ({ navigation }) => {
   );
 
   const handleImportExcel = async () => {
+    console.log('handleImportExcel chamada'); // Verifica se a função está sendo chamada
     try {
       const res = await DocumentPicker.getDocumentAsync({ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       if (res.type === 'success') {
-        const b64 = await FileSystem.readAsStringAsync(res.uri, { encoding: FileSystem.EncodingType.Base64 });
+        console.log('Documento selecionado:', res); // Verifica se o documento foi selecionado
+        const { name, uri } = res;
+        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+        console.log('Base64 lido do arquivo:', b64.slice(0, 100)); // Exibe os primeiros 100 caracteres do Base64 para verificar
         const wb = XLSX.read(b64, { type: 'base64' });
   
         const ws = wb.Sheets[wb.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        console.log('Dados da planilha lidos:', data); // Exibe os dados lidos da planilha
   
-        // Filtrar apenas as colunas desejadas (nome, pax, pp) e limitar a 8 linhas
-        const filteredData = data.map(row => [row[1], row[2], row[3]]).slice(1, 9); // Ignorando a primeira linha (cabeçalho)
-  
-        await AsyncStorage.setItem('excelData', JSON.stringify(filteredData));
-        console.log('Dados carregados:', filteredData);
-        alert('Planilha importada com sucesso!');
+        await AsyncStorage.setItem('excelData', JSON.stringify(data));
+        
+        // Verificar se os dados foram armazenados corretamente
+        const storedData = await AsyncStorage.getItem('excelData');
+        if (storedData) {
+          console.log('Dados armazenados com sucesso:', JSON.parse(storedData));
+          alert(`Planilha importada com sucesso! Nome do arquivo: ${name}`);
+        } else {
+          alert('Falha ao armazenar os dados da planilha.');
+        }
       }
     } catch (err) {
       console.error(err);
@@ -57,6 +66,7 @@ const MyEventsScreen = ({ navigation }) => {
     }
   };
   
+
   const renderItem = ({ item }) => (
     <TouchableHighlight
       underlayColor="transparent"
