@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Image, SafeAreaView, Modal, FlatList, Button } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system'; // Import for file access
+import * as FileSystem from 'expo-file-system';
 import XLSX from 'xlsx';
 
 const MyEventsScreen = ({ navigation }) => {
@@ -36,37 +36,27 @@ const MyEventsScreen = ({ navigation }) => {
 
   const handleImportExcel = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
-      });
+      const res = await DocumentPicker.getDocumentAsync({ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      if (res.type === 'success') {
+        const b64 = await FileSystem.readAsStringAsync(res.uri, { encoding: FileSystem.EncodingType.Base64 });
+        const wb = XLSX.read(b64, { type: 'base64' });
   
-      if (result.type === 'success') {
-        const fileContent = await FileSystem.readAsStringAsync(result.uri, { encoding: FileSystem.EncodingType.Base64 });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
   
-        const workbook = XLSX.read(fileContent, { type: 'base64' });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const parsedData = XLSX.utils.sheet_to_json(sheet);
+        // Filtrar apenas as colunas desejadas (nome, pax, pp) e limitar a 8 linhas
+        const filteredData = data.map(row => [row[1], row[2], row[3]]).slice(1, 9); // Ignorando a primeira linha (cabeçalho)
   
-        const importedData = parsedData.map((row) => [
-          String(row['CONVITE']),
-          String(row['PAX']),
-          String(row['PP'])
-        ]);
-  
-        await AsyncStorage.setItem('excelData', JSON.stringify(importedData));
-  
-        navigation.navigate('Evento', { importedData });
-  
+        await AsyncStorage.setItem('excelData', JSON.stringify(filteredData));
+        console.log('Dados carregados:', filteredData);
         alert('Planilha importada com sucesso!');
       }
     } catch (err) {
-      console.error('Erro:', err);
-      alert('Erro ao importar planilha!');
+      console.error(err);
+      alert('Erro ao importar a planilha');
     }
   };
   
-
   const renderItem = ({ item }) => (
     <TouchableHighlight
       underlayColor="transparent"
@@ -125,7 +115,7 @@ const handleRemoveKey = () => {
 };
 
 const NavegarParaEvento = () => {
-  navigation.navigate('Evento', { importedData: data });
+  navigation.navigate('Evento', { eventName: selectedEvent.current.key });
   setShowModal(false);
 };
 
