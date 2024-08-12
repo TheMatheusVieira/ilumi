@@ -1,37 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, FlatList, Modal, Button, TouchableHighlight } from 'react-native';
 
 const EventScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState([
-    ['CONVITE', 'PAX', 'PP'],
-    ...Array.from({ length: 8 }, () => ['teste', 'teste', 'teste'])
+  const [novoConvidado, setNovoConvidado] = useState('');
+  const [showAddConvite, setShowAddConvidado] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [convidados, setConvidados] = useState([
+    { key: '1', convite: 'Convite 1', pax: '2', pp: '100' },
+    { key: '2', convite: 'Convite 2', pax: '3', pp: '150' },
+    // Adicione mais convidados aqui
   ]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem('excelData');
-        if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          setData(parsedData);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-      }
-    };
+  const handleModalClose = () => {
+    setShowModal(false);
+    setNovoConvidado('');
+  };
 
-    loadData();
-  }, []);
+  const addConviteModalClose = () => {
+    setShowAddConvidado(false);
+    setNovoConvidado('');
+  };
 
   const handleExport = () => {
     // Lógica de exportação de dados
     alert('Exportar dados não implementado ainda!');
   };
 
-  const filteredData = data.filter(row =>
-    row.some(cell => cell && cell.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredData = convidados.filter(row =>
+    row.convite.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderItem = ({ item }) => (
+    <TouchableHighlight
+      underlayColor="transparent"
+      onPress={() => {
+        // Lógica para quando o item for clicado
+        setShowModal(true);
+      }}
+      activeOpacity={0.9}
+    >
+      <View style={styles.row}>
+        <Text style={styles.cell}>{item.convite}</Text>
+        <Text style={styles.cell}>{item.pax}</Text>
+        <Text style={styles.cell}>{item.pp}</Text>
+      </View>
+    </TouchableHighlight>
   );
 
   return (
@@ -43,54 +57,49 @@ const EventScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View>
-        <View style={styles.ContainerConvite}>
-          <Text style={{ color: 'white' }}>Teste</Text>
-        </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Pesquisar convite"
+          onChangeText={(text) => setSearchTerm(text)}
+          value={searchTerm}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={() => setShowAddConvidado(true)}>
+          <Text style={styles.addButtonText}>Adicionar</Text>
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.counterButton}>
-            <Text style={styles.counterButtonText}>Menos 1</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.counterButton}>
-            <Text style={styles.counterButtonText}>Mais 1</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.inputContainer}>
+      <Modal
+        visible={showAddConvite}
+        onRequestClose={addConviteModalClose}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modal}>
+          <Text style={styles.modalText}>ADICIONAR NOVO CONVIDADO</Text>
           <TextInput
-            style={styles.input}
-            placeholder="Pesquisar convite"
-            onChangeText={(text) => setSearchTerm(text)}
-            value={searchTerm}
+            style={styles.modalInput}
+            value={novoConvidado}
+            onChangeText={(text) => setNovoConvidado(text)}
+            placeholder="Nome do Convidado"
           />
-          <TouchableOpacity style={styles.addButton}>
-            <Text style={styles.addButtonText}>Adicionar</Text>
-          </TouchableOpacity>
+          <View style={styles.modalButtons}>
+            <Button color={'black'} title="CONFIRMAR" onPress={handleModalClose} />
+            <Button color={'black'} title="CANCELAR" onPress={addConviteModalClose} />
+          </View>
         </View>
+      </Modal>
 
-        <View>
-          <FlatList
-            data={filteredData}
-            renderItem={({ item }) => (
-              <View style={styles.row}>
-                {item.map((cell, index) => (
-                  <Text key={index} style={styles.cell}>
-                    {cell}
-                  </Text>
-                ))}
-              </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
+      <FlatList
+        data={filteredData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.key}
+      />
 
-        <View style={styles.exportButtonContainer}>
-          <TouchableOpacity style={styles.exportButton} onPress={handleExport}>
-            <Text style={styles.exportButtonText}>Exportar</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.exportButtonContainer}>
+        <TouchableOpacity style={styles.exportButton} onPress={handleExport}>
+          <Text style={styles.exportButtonText}>Exportar</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -226,6 +235,40 @@ row: {
 cell: {
   flex: 1,
   textAlign: 'center',
+},
+modal: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+},
+modalText: {
+  fontSize: 19,
+  color: 'white',
+  textShadowRadius: 5,
+  textShadowColor: 'black',
+  marginBottom: 5,
+  fontWeight: "bold",
+},
+modalButtons: {
+  flexDirection: 'column',
+  justifyContent: 'space-around',
+  gap: 10,
+  width: '75%',
+},
+quadro: {
+  // backgroundColor: 'white',
+  paddingBottom: 20,
+  paddingTop: 10,
+  paddingLeft: 30,
+  paddingRight: 30,
+  justifyContent: 'center',
+  alignItems: 'center',
+ },
+ item: {
+  padding: 10,
+  fontSize: 18,
+  height: 44,
 },
 });
 

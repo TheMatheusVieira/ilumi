@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     borderLeftColor: '#b8860b',
   },
   buttonTextMenu: {
-    color: 'black',
+    color: '#b8860b',
     fontSize: 20,
     marginTop: 70,
   },

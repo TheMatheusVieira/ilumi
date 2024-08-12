@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Image, SafeAreaView, Modal, FlatList, Button } from 'react-native';
-import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system';
-import XLSX from 'xlsx';
 
 const MyEventsScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,7 +9,7 @@ const MyEventsScreen = ({ navigation }) => {
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const selectedEvent = React.useRef(null);
-
+  
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -33,39 +30,6 @@ const MyEventsScreen = ({ navigation }) => {
   const filteredData = data.filter((event) =>
     typeof event.key === 'string' && event.key.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleImportExcel = async () => {
-    console.log('handleImportExcel chamada'); // Verifica se a função está sendo chamada
-    try {
-      const res = await DocumentPicker.getDocumentAsync({ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      if (res.type === 'success') {
-        console.log('Documento selecionado:', res); // Verifica se o documento foi selecionado
-        const { name, uri } = res;
-        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-        console.log('Base64 lido do arquivo:', b64.slice(0, 100)); // Exibe os primeiros 100 caracteres do Base64 para verificar
-        const wb = XLSX.read(b64, { type: 'base64' });
-  
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        console.log('Dados da planilha lidos:', data); // Exibe os dados lidos da planilha
-  
-        await AsyncStorage.setItem('excelData', JSON.stringify(data));
-        
-        // Verificar se os dados foram armazenados corretamente
-        const storedData = await AsyncStorage.getItem('excelData');
-        if (storedData) {
-          console.log('Dados armazenados com sucesso:', JSON.parse(storedData));
-          alert(`Planilha importada com sucesso! Nome do arquivo: ${name}`);
-        } else {
-          alert('Falha ao armazenar os dados da planilha.');
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Erro ao importar a planilha');
-    }
-  };
-  
 
   const renderItem = ({ item }) => (
     <TouchableHighlight
@@ -193,7 +157,6 @@ return (
           <View style={styles.modalButtons}>
             <Button color={'black'} title="ABRIR - Lista de convidados" onPress={NavegarParaEvento} />
             <Button color={'black'} title='ALTERAR - Nome do evento' />
-            <Button color={'black'} title='IMPORTAR - Planilha de Excel' onPress={handleImportExcel} />
             <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleRemoveKey} />
             <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
           </View>
