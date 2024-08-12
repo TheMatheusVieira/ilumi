@@ -7,6 +7,8 @@ const EventScreen = ({ navigation }) => {
   const [showAddConvite, setShowAddConvidado] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [convidados, setConvidados] = useState([
+    { key: '0', convite: 'CONVITE', pax: 'PAX', pp: 'PP'},
+
     { key: '1', convite: 'Convite 1', pax: '2', pp: '100' },
     { key: '2', convite: 'Convite 2', pax: '3', pp: '150' },
     // Adicione mais convidados aqui
@@ -82,6 +84,18 @@ const EventScreen = ({ navigation }) => {
             value={novoConvidado}
             onChangeText={(text) => setNovoConvidado(text)}
             placeholder="Nome do Convidado"
+          />
+          <TextInput
+            style={styles.modalInput}
+            value={novoConvidado}
+            onChangeText={(text) => setNovoConvidado(text)}
+            placeholder="PAX"
+          />
+          <TextInput
+            style={styles.modalInput}
+            value={novoConvidado}
+            onChangeText={(text) => setNovoConvidado(text)}
+            placeholder="PP"
           />
           <View style={styles.modalButtons}>
             <Button color={'black'} title="CONFIRMAR" onPress={handleModalClose} />
