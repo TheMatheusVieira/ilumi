@@ -1,32 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, FlatList, Modal, Button, TouchableHighlight } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as XLSX from 'xlsx';
 
 const EventScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [novoConvidado, setNovoConvidado] = useState('');
   const [showAddConvite, setShowAddConvidado] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [convidados, setConvidados] = useState([
-    { key: '0', convite: 'CONVITE', pax: 'PAX', pp: 'PP'},
+  const [convidados, setConvidados] = useState([]);
 
-    { key: '1', convite: 'Convite 1', pax: '2', pp: '100' },
-    { key: '2', convite: 'Convite 2', pax: '3', pp: '150' },
-    // Adicione mais convidados aqui
-  ]);
+  useEffect(() => {
+    loadConvidados();
+  }, []);
 
-  const handleModalClose = () => {
-    setShowModal(false);
-    setNovoConvidado('');
+  const loadConvidados = async () => {
+    try {
+      const storedConvidados = await AsyncStorage.getItem('convidados');
+      if (storedConvidados) {
+        setConvidados(JSON.parse(storedConvidados));
+      }
+    } catch (error) {
+      console.log('Erro ao carregar convidados:', error);
+    }
   };
 
-  const addConviteModalClose = () => {
+  const saveConvidados = async (newConvidados) => {
+    try {
+      await AsyncStorage.setItem('convidados', JSON.stringify(newConvidados));
+    } catch (error) {
+      console.log('Erro ao salvar convidados:', error);
+    }
+  };
+
+  const addConvidados = () => {
+    const novoConvidadosArray = novoConvidado.split('\n').map((item, index) => {
+        const [id, nome, pax, pp, mesa, setor] = item.split(',');
+
+        // Garantindo que os valores existam e, se não, substituindo por uma string vazia
+        return { 
+            key: `${convidados.length + index}`, 
+            convite: nome ? nome.trim() : '', 
+            pax: pax ? pax.trim() : '', 
+            pp: pp ? pp.trim() : '' 
+        };
+    });
+
+    const updatedConvidados = [...convidados, ...novoConvidadosArray];
+    setConvidados(updatedConvidados);
+    saveConvidados(updatedConvidados);
     setShowAddConvidado(false);
     setNovoConvidado('');
-  };
+};
 
-  const handleExport = () => {
-    // Lógica de exportação de dados
-    alert('Exportar dados não implementado ainda!');
+
+  const exportToExcel = async () => {
+    const worksheet = XLSX.utils.json_to_sheet(convidados);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Convidados');
+
+    const excelData = XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' });
+
+    const uri = FileSystem.documentDirectory + 'Finalizado.xlsx';
+    await FileSystem.writeAsStringAsync(uri, excelData, { encoding: FileSystem.EncodingType.Base64 });
+
+    await Sharing.shareAsync(uri);
   };
 
   const filteredData = convidados.filter(row =>
@@ -36,10 +75,7 @@ const EventScreen = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableHighlight
       underlayColor="transparent"
-      onPress={() => {
-        // Lógica para quando o item for clicado
-        setShowModal(true);
-      }}
+      onPress={() => {}}
       activeOpacity={0.9}
     >
       <View style={styles.row}>
@@ -73,33 +109,22 @@ const EventScreen = ({ navigation }) => {
 
       <Modal
         visible={showAddConvite}
-        onRequestClose={addConviteModalClose}
+        onRequestClose={() => setShowAddConvidado(false)}
         animationType="slide"
         transparent={true}
       >
         <View style={styles.modal}>
-          <Text style={styles.modalText}>ADICIONAR NOVO CONVIDADO</Text>
+          <Text style={styles.modalText}>ADICIONAR NOVOS CONVIDADOS</Text>
           <TextInput
             style={styles.modalInput}
             value={novoConvidado}
             onChangeText={(text) => setNovoConvidado(text)}
-            placeholder="Nome do Convidado"
-          />
-          <TextInput
-            style={styles.modalInput}
-            value={novoConvidado}
-            onChangeText={(text) => setNovoConvidado(text)}
-            placeholder="PAX"
-          />
-          <TextInput
-            style={styles.modalInput}
-            value={novoConvidado}
-            onChangeText={(text) => setNovoConvidado(text)}
-            placeholder="PP"
+            placeholder="Insira os dados dos convidados no formato: _id,NOME,PAX,PP,MESA,SETOR"
+            multiline={true}
           />
           <View style={styles.modalButtons}>
-            <Button color={'black'} title="CONFIRMAR" onPress={handleModalClose} />
-            <Button color={'black'} title="CANCELAR" onPress={addConviteModalClose} />
+            <Button color={'black'} title="CONFIRMAR" onPress={addConvidados} />
+            <Button color={'black'} title="CANCELAR" onPress={() => setShowAddConvidado(false)} />
           </View>
         </View>
       </Modal>
@@ -111,13 +136,15 @@ const EventScreen = ({ navigation }) => {
       />
 
       <View style={styles.exportButtonContainer}>
-        <TouchableOpacity style={styles.exportButton} onPress={handleExport}>
+        <TouchableOpacity style={styles.exportButton} onPress={exportToExcel}>
           <Text style={styles.exportButtonText}>Exportar</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
 container: {
