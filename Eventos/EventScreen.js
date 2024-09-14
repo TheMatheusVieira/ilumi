@@ -14,6 +14,13 @@ const EventScreen = ({ navigation }) => {
   const [selectedConvidado, setSelectedConvidado] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  const [novoNome, setNovoNome] = useState('');
+  const [novoPax, setNovoPax] = useState('');
+  const [novoPp, setNovoPp] = useState('');
+  const [novaMesa, setNovaMesa] = useState('');
+  const [novoSetor, setNovoSetor] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
   useEffect(() => {
     loadConvidados();
   }, []);
@@ -55,6 +62,29 @@ const EventScreen = ({ navigation }) => {
     saveConvidados(updatedConvidados);
     setShowAddConvidado(false);
     setNovoConvidado('');
+};
+
+
+const adicionarNewConvidado = () => {
+  const novoConvidado = {
+    key: `${convidados.length}`, // Gera uma chave única
+    convite: novoNome.trim(),
+    pax: novoPax.trim(),
+    pp: novoPp.trim(),
+    mesa: novaMesa.trim(),
+    setor: novoSetor.trim(),
+  };
+
+  const updatedNewConvidados = [...convidados, novoConvidado];
+  setConvidados(updatedNewConvidados);
+  saveConvidados(updatedNewConvidados);
+  setModalVisible(false);
+  // Limpar os campos após adicionar o convidado
+  setNovoNome('');
+  setNovoPax('');
+  setNovoPp('');
+  setNovaMesa('');
+  setNovoSetor('');
 };
 
 
@@ -117,12 +147,11 @@ const EventScreen = ({ navigation }) => {
           <Text style={styles.addButtonText}>+ Lista</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.addButtonText}>+ Convite</Text>
       </TouchableOpacity>
 
       </View>
-
 
       <Modal
         visible={showAddConvite}
@@ -145,6 +174,55 @@ const EventScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* // Modal para adicionar um novo convidado */}
+
+<Modal
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+  animationType="slide"
+  transparent={true}
+>
+  <View style={styles.modal}>
+    <Text style={styles.modalText}>ADICIONAR CONVIDADO</Text>
+    <TextInput
+      style={styles.modalInput}
+      value={novoNome}
+      onChangeText={(text) => setNovoNome(text)}
+      placeholder="Nome"
+    />
+    <TextInput
+      style={styles.modalInput}
+      value={novoPax}
+      onChangeText={(text) => setNovoPax(text)}
+      placeholder="Pax"
+      keyboardType="numeric"
+    />
+    <TextInput
+      style={styles.modalInput}
+      value={novoPp}
+      onChangeText={(text) => setNovoPp(text)}
+      placeholder="PP"
+      keyboardType="numeric"
+    />
+    <TextInput
+      style={styles.modalInput}
+      value={novaMesa}
+      onChangeText={(text) => setNovaMesa(text)}
+      placeholder="Mesa"
+    />
+    <TextInput
+      style={styles.modalInput}
+      value={novoSetor}
+      onChangeText={(text) => setNovoSetor(text)}
+      placeholder="Setor"
+    />
+    <View style={styles.modalButtons}>
+      <Button color={'black'} title="Adicionar" onPress={adicionarNewConvidado} />
+      <Button color={'black'} title="Cancelar" onPress={() => setModalVisible(false)} />
+    </View>
+  </View>
+</Modal>
 
       <FlatList
         data={filteredData}
@@ -183,15 +261,16 @@ const EventScreen = ({ navigation }) => {
         color={'black'}
         title="Salvar"
         onPress={() => {
-          const updatedConvidados = convidados.map((convidado) =>
+          const updatedNewConvidados = convidados.map((convidado) =>
             convidado.key === selectedConvidado.key ? selectedConvidado : convidado
           );
-          setConvidados(updatedConvidados);
-          saveConvidados(updatedConvidados); // Salva as mudanças
+          setConvidados(updatedNewConvidados);
+          saveConvidados(updatedNewConvidados); // Salva as mudanças
           setShowEditModal(false); // Fecha a modal
         }}
       />
       <Button color={'black'} title="Cancelar" onPress={() => setShowEditModal(false)} />
+      <Button color={'black'} title="Excluir convite"/>
     </View>
   </View>
 </Modal>

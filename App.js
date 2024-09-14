@@ -56,7 +56,7 @@ const NextPage = ({navigation}) => {
           <Text style={styles.buttonTextMenu}>Meus eventos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonMenu}>
-          <Text style={styles.buttonTextMenu}>Novo evento</Text>
+          <Text style={styles.buttonTextMenu}>Realizados</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonMenu}>
           <Text style={styles.buttonTextMenu}>Minhas listas</Text>
