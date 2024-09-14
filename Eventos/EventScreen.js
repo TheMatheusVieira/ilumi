@@ -11,6 +11,9 @@ const EventScreen = ({ navigation }) => {
   const [showAddConvite, setShowAddConvidado] = useState(false);
   const [convidados, setConvidados] = useState([]);
 
+  const [selectedConvidado, setSelectedConvidado] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   useEffect(() => {
     loadConvidados();
   }, []);
@@ -75,7 +78,10 @@ const EventScreen = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableHighlight
       underlayColor="transparent"
-      onPress={() => {}}
+      onPress={() => {
+        setSelectedConvidado(item); // Armazena o convidado selecionado
+        setShowEditModal(true); // Exibe a modal
+      }}
       activeOpacity={0.9}
     >
       <View style={styles.row}>
@@ -85,6 +91,7 @@ const EventScreen = ({ navigation }) => {
       </View>
     </TouchableHighlight>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -144,6 +151,50 @@ const EventScreen = ({ navigation }) => {
         renderItem={renderItem}
         keyExtractor={(item) => item.key}
       />
+
+<Modal
+  visible={showEditModal}
+  onRequestClose={() => setShowEditModal(false)}
+  animationType="slide"
+  transparent={true}
+>
+  <View style={styles.modal}>
+    <Text style={styles.modalText}>Editar Convidado</Text>
+    <TextInput
+      style={styles.modalInput}
+      value={selectedConvidado?.convite}
+      onChangeText={(text) => setSelectedConvidado({ ...selectedConvidado, convite: text })}
+      placeholder="Nome"
+    />
+    <TextInput
+      style={styles.modalInput}
+      value={selectedConvidado?.pax}
+      onChangeText={(text) => setSelectedConvidado({ ...selectedConvidado, pax: text })}
+      placeholder="PAX"
+    />
+    <TextInput
+      style={styles.modalInput}
+      value={selectedConvidado?.pp}
+      onChangeText={(text) => setSelectedConvidado({ ...selectedConvidado, pp: text })}
+      placeholder="PP"
+    />
+    <View style={styles.modalButtons}>
+      <Button
+        color={'black'}
+        title="Salvar"
+        onPress={() => {
+          const updatedConvidados = convidados.map((convidado) =>
+            convidado.key === selectedConvidado.key ? selectedConvidado : convidado
+          );
+          setConvidados(updatedConvidados);
+          saveConvidados(updatedConvidados); // Salva as mudanças
+          setShowEditModal(false); // Fecha a modal
+        }}
+      />
+      <Button color={'black'} title="Cancelar" onPress={() => setShowEditModal(false)} />
+    </View>
+  </View>
+</Modal>
 
       <View style={styles.exportButtonContainer}>
         <TouchableOpacity style={styles.exportButton} onPress={exportToExcel}>
@@ -295,6 +346,15 @@ modal: {
   alignItems: 'center',
   backgroundColor: 'rgba(0, 0, 0, 0.5)', 
 },
+
+modalInput: {
+  backgroundColor: 'white',
+  padding: 10,
+  marginBottom: 10,
+  borderRadius: 5,
+  width: '80%',
+},
+
 modalText: {
   fontSize: 19,
   color: 'white',
