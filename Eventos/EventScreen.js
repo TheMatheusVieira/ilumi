@@ -95,17 +95,27 @@ const EventScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.inputContainer}>
-        <TextInput
+<View style={styles.pesquisarConv}>
+      <TextInput
           style={styles.input}
           placeholder="Pesquisar convite"
           onChangeText={(text) => setSearchTerm(text)}
           value={searchTerm}
         />
+</View>
+
+      <View style={styles.inputContainer}>
+        
         <TouchableOpacity style={styles.addButton} onPress={() => setShowAddConvidado(true)}>
-          <Text style={styles.addButtonText}>Adicionar</Text>
+          <Text style={styles.addButtonText}>+ Lista</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.addButton}>
+          <Text style={styles.addButtonText}>+ Convite</Text>
+      </TouchableOpacity>
+
       </View>
+
 
       <Modal
         visible={showAddConvite}
@@ -143,7 +153,6 @@ const EventScreen = ({ navigation }) => {
     </View>
   );
 };
-
 
 
 const styles = StyleSheet.create({
@@ -213,20 +222,22 @@ inputContainer: {
   flexDirection: 'row',
   alignItems: 'center',
   marginVertical: 5,
-
+  gap: 25,
+  justifyContent: 'center'
   //paddingBottom: 100, // Ajuste o padding para caber a lista
 },
 input: {
   borderBottomWidth: 1,
   borderBottomColor: 'black',
   padding: 8,
-  width: 230,
+  paddingHorizontal: 3,
   marginRight: 10,
   marginLeft: 10,
 },
 addButton: {
-  width: 90,
-  height: 30,
+  paddingHorizontal: 20,
+  width: 120,
+  paddingVertical: 5,
   backgroundColor: 'black',
   borderRadius: 10,
   alignContent: 'center',
@@ -246,6 +257,7 @@ addButtonText: {
 exportButtonContainer: {
   position: 'static',
   marginTop: 15,
+  marginBottom: 15,
   justifyContent: 'center',
   alignItems: 'center',
   width: '100%',
@@ -310,6 +322,19 @@ quadro: {
   padding: 10,
   fontSize: 18,
   height: 44,
+},
+ticonvites: {
+  gap: 70,
+  textAlign: 'center',
+  marginTop: 10,
+  marginBottom: 10,
+},
+ticonviteslinha: {
+ 
+},
+pesquisarConv: {
+  margin: 5,
+  marginBottom: 10
 },
 });
 
