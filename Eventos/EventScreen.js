@@ -270,7 +270,12 @@ const adicionarNewConvidado = () => {
         }}
       />
       <Button color={'black'} title="Cancelar" onPress={() => setShowEditModal(false)} />
-      <Button color={'black'} title="Excluir convite"/>
+      <Button color={'black'} title="Excluir convite" onPress={() => {
+      const updatedConvidados = convidados.filter((convidado) => convidado.key !== selectedConvidado.key); // Filtra os convidados, removendo o que tem a chave correspondente
+      setConvidados(updatedConvidados); // Atualiza o estado com a nova lista
+      saveConvidados(updatedConvidados); // Salva a nova lista no AsyncStorage
+      setShowEditModal(false); // Fecha o modal
+    }}/>
     </View>
   </View>
 </Modal>

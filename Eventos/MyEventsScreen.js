@@ -8,8 +8,8 @@ const MyEventsScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const selectedEvent = React.useRef(null);
-  
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -35,7 +35,7 @@ const MyEventsScreen = ({ navigation }) => {
     <TouchableHighlight
       underlayColor="transparent"
       onPress={() => {
-        selectedEvent.current = item;
+        setSelectedEvent(item); // Armazena o evento selecionado
         setShowModal(true);
       }}
       activeOpacity={0.9}
@@ -62,7 +62,7 @@ const MyEventsScreen = ({ navigation }) => {
         console.error('Evento já existe. Por favor, escolha outro nome.');
         return;
       }
-      const newData = [...data, { key: newKeyStr }];
+      const newData = [...data, { key: newKeyStr, guests: [] }]; // Adiciona um campo de convidados para o novo evento
       setData(newData);
       AsyncStorage.setItem('eventData', JSON.stringify(newData))
         .then(() => console.log('Eventos salvos com sucesso!'))
@@ -73,98 +73,96 @@ const MyEventsScreen = ({ navigation }) => {
       console.error('Por favor, digite um nome para o evento.');
     }
   };
-  
 
-const handleRemoveKey = () => {
-  if (selectedEvent.current) {
-    const newData = data.filter(item => item.key !== selectedEvent.current.key);
-    setData(newData);
-    AsyncStorage.setItem('eventData', JSON.stringify(newData))
-      .then(() => console.log('Evento removido com sucesso!'))
-      .catch((error) => console.error('Erro ao remover evento:', error));
+  const handleRemoveKey = () => {
+    if (selectedEvent) {
+      const newData = data.filter(item => item.key !== selectedEvent.key);
+      setData(newData);
+      AsyncStorage.setItem('eventData', JSON.stringify(newData))
+        .then(() => console.log('Evento removido com sucesso!'))
+        .catch((error) => console.error('Erro ao remover evento:', error));
+      setShowModal(false);
+    } else {
+      console.error('Chave inválida:', newKey);
+    }
+  };
+
+  const NavegarParaEvento = () => {
+    navigation.navigate('Evento', { eventData: selectedEvent }); // Passa o evento selecionado para a próxima tela
     setShowModal(false);
-  } else {
-    console.error('Chave inválida:', newKey);
-  }
-};
+  };
 
-const NavegarParaEvento = () => {
-  navigation.navigate('Evento', { eventName: selectedEvent.current.key });
-  setShowModal(false);
-};
-
-
-return (
-  <View style={styles.container}>
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>Listas</Text>
-      <TouchableOpacity style={styles.menuIconContainer} onPress={() => navigation.navigate('Home')}>
-        <Image source={require('../assets/menu.png')} style={styles.menuIcon} />
-      </TouchableOpacity>
-    </View>
-
-    <View style={styles.inputContainer}>
-      <TextInput 
-        style={styles.textInput} 
-        placeholder="Pesquisar evento"
-        onChangeText={(text) => setSearchTerm(text)}
-        value={searchTerm}
-      />
-
-      <TouchableOpacity style={styles.newButton} onPress={() => setShowAddEvent(true)}>
-        <Text style={styles.newButtonText}>Novo</Text>
-      </TouchableOpacity>
-    </View>
-
-    <SafeAreaView>
-      <FlatList
-        data={filteredData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.key}
-      />
-    </SafeAreaView>
-
-    <Modal
-      visible={showAddEvent}
-      onRequestClose={addEventModalClose}
-      animationType="slide"
-      transparent={true}
-    >
-      <View style={styles.modal}>
-        <Text style={styles.modalText}>ADICIONAR NOVO EVENTO</Text>
-        <TextInput
-          style={styles.modalInput}
-          value={newKey}
-          onChangeText={(text) => setNewKey(text)}
-          placeholder="Nome do Evento"
-        />
-        <View style={styles.modalButtons}>
-          <Button color={'black'} title="CONFIRMAR" onPress={handleAddKey} />
-          <Button color={'black'} title="CANCELAR" onPress={addEventModalClose} />
-        </View>
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Listas</Text>
+        <TouchableOpacity style={styles.menuIconContainer} onPress={() => navigation.navigate('Home')}>
+          <Image source={require('../assets/menu.png')} style={styles.menuIcon} />
+        </TouchableOpacity>
       </View>
-    </Modal>
 
-    <Modal
-      visible={showModal}
-      onRequestClose={handleModalClose}
-      animationType="slide"
-      transparent={true}
-    >
-      <View style={styles.modal}>
-        <View style={styles.quadro}>
-          <Text style={styles.modalText}>DESEJA ENTRAR NO EVENTO "{selectedEvent.current?.key}"?</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Pesquisar evento"
+          onChangeText={(text) => setSearchTerm(text)}
+          value={searchTerm}
+        />
+
+        <TouchableOpacity style={styles.newButton} onPress={() => setShowAddEvent(true)}>
+          <Text style={styles.newButtonText}>Novo</Text>
+        </TouchableOpacity>
+      </View>
+
+      <SafeAreaView>
+        <FlatList
+          data={filteredData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.key}
+        />
+      </SafeAreaView>
+
+      <Modal
+        visible={showAddEvent}
+        onRequestClose={addEventModalClose}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modal}>
+          <Text style={styles.modalText}>ADICIONAR NOVO EVENTO</Text>
+          <TextInput
+            style={styles.modalInput}
+            value={newKey}
+            onChangeText={(text) => setNewKey(text)}
+            placeholder="Nome do Evento"
+          />
           <View style={styles.modalButtons}>
-            <Button color={'black'} title="ABRIR - Lista de convidados" onPress={NavegarParaEvento} />
-            <Button color={'black'} title='ALTERAR - Nome do evento' />
-            <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleRemoveKey} />
-            <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
+            <Button color={'black'} title="CONFIRMAR" onPress={handleAddKey} />
+            <Button color={'black'} title="CANCELAR" onPress={addEventModalClose} />
           </View>
         </View>
-      </View>
-    </Modal>
-  </View>
-);
+      </Modal>
+
+      <Modal
+        visible={showModal}
+        onRequestClose={handleModalClose}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modal}>
+          <View style={styles.quadro}>
+            <Text style={styles.modalText}>DESEJA ENTRAR NO EVENTO "{selectedEvent?.key}"?</Text>
+            <View style={styles.modalButtons}>
+              <Button color={'black'} title="ABRIR - Lista de convidados" onPress={NavegarParaEvento} />
+              <Button color={'black'} title='ALTERAR - Nome do evento' />
+              <Button color={'black'} title='EXCLUIR EVENTO' onPress={handleRemoveKey} />
+              <Button color={'black'} title="FECHAR" onPress={handleModalClose} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
